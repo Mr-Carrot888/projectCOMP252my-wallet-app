@@ -1,0 +1,24 @@
+{
+  "name": "projectcomp252my-wallet-app",
+  "version": "1.0.0",
+  "description": "สมาชิก<br>\r 1.นายภูริ มาภู 6712231035<br>\r 2.น.ส.กมลวรรณ แก้วเจิม 6712231001<br>\r 3.นายอรรนพ เพริดพริ้ง 6712231029<br>",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mr-Carrot888/projectCOMP252my-wallet-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mr-Carrot888/projectCOMP252my-wallet-app/issues"
+  },
+  "homepage": "https://github.com/Mr-Carrot888/projectCOMP252my-wallet-app#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
