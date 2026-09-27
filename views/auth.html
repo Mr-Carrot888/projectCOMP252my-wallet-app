@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เข้าสู่ระบบ - My Wallet</title>
+  <link rel="stylesheet" href="/css/output.css" />
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
+    <!-- โลโก้ -->
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold text-slate-800">💰 My Wallet</h1>
+      <p class="text-slate-500 text-sm mt-1">ระบบจัดการรายรับ-รายจ่ายส่วนบุคคล</p>
+    </div>
+
+    <!-- ปุ่มสลับ Login / Register -->
+    <div class="flex bg-slate-100 rounded-lg p-1 mb-6">
+      <button id="tab-login" onclick="switchTab('login')"
+        class="flex-1 py-2 rounded-md text-sm font-semibold transition-colors bg-white text-indigo-600 shadow">เข้าสู่ระบบ</button>
+      <button id="tab-register" onclick="switchTab('register')"
+        class="flex-1 py-2 rounded-md text-sm font-semibold transition-colors text-slate-500">สมัครสมาชิก</button>
+    </div>
+
+    <!-- กล่องแจ้งเตือน -->
+    <div id="alert-box" class="hidden rounded-lg px-4 py-3 text-sm mb-4"></div>
+
+    <!-- ฟอร์มเข้าสู่ระบบ -->
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Username หรือ Email</label>
+        <input id="login-identifier" type="text" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่าน</label>
+        <input id="login-password" type="password" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <button type="submit"
+        class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+        เข้าสู่ระบบ
+      </button>
+    </form>
+
+    <!-- ฟอร์มสมัครสมาชิก (ซ่อนไว้ก่อน) -->
+    <form id="register-form" class="space-y-4 hidden">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อผู้ใช้ (username)</label>
+        <input id="reg-username" type="text" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล</label>
+        <input id="reg-email" type="email" required
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่าน</label>
+        <input id="reg-password" type="password" required minlength="6"
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">ยืนยันรหัสผ่าน</label>
+        <input id="reg-confirm" type="password" required minlength="6"
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+      <button type="submit"
+        class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition-colors">
+        สมัครสมาชิก
+      </button>
+      <p class="text-xs text-slate-400 text-center">สมัครเสร็จจะได้รับ "กระเป๋าหลัก" ยอดเริ่มต้น 0 บาทอัตโนมัติ</p>
+    </form>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const alertBox = document.getElementById('alert-box');
+
+    // ---------- สลับแท็บ Login / Register ----------
+    function switchTab(tab) {
+      const isLogin = tab === 'login';
+      document.getElementById('login-form').classList.toggle('hidden', !isLogin);
+      document.getElementById('register-form').classList.toggle('hidden', isLogin);
+      document.getElementById('tab-login').className = isLogin
+        ? 'flex-1 py-2 rounded-md text-sm font-semibold transition-colors bg-white text-indigo-600 shadow'
+        : 'flex-1 py-2 rounded-md text-sm font-semibold transition-colors text-slate-500';
+      document.getElementById('tab-register').className = !isLogin
+        ? 'flex-1 py-2 rounded-md text-sm font-semibold transition-colors bg-white text-indigo-600 shadow'
+        : 'flex-1 py-2 rounded-md text-sm font-semibold transition-colors text-slate-500';
+      alertBox.classList.add('hidden');
+    }
+
+    // ---------- เข้าสู่ระบบ ----------
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const identifier = document.getElementById('login-identifier').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      try {
+        // รองรับทั้ง username และ email: ถ้ามี @ ให้ส่งเป็น email ไปเช็ก
+        let username = identifier;
+        if (identifier.includes('@')) {
+          // หา username จาก email ผ่าน API เดิม (login ใช้ username) - ลองยิงตรงๆ ก่อน
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: identifier, password })
+          });
+          if (res.ok) {
+            window.location.href = '/dashboard.html';
+            return;
+          }
+          // ถ้าไม่ผ่านด้วย email แสดง error ตรงๆ (API รับแค่ username ตอนนี้)
+          const data = await res.json().catch(() => ({}));
+          showAlert('alert-box', data.message || 'เข้าสู่ระบบไม่สำเร็จ');
+          return;
+        }
+
+        await apiFetch('/api/auth/login', {
+          method: 'POST',
+          body: { username, password }
+        });
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        showAlert('alert-box', err.message);
+      }
+    });
+
+    // ---------- สมัครสมาชิก ----------
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm').value;
+
+      if (password !== confirm) {
+        showAlert('alert-box', 'รหัสผ่านทั้งสองช่องไม่ตรงกัน');
+        return;
+      }
+
+      try {
+        await apiFetch('/api/auth/register', {
+          method: 'POST',
+          body: { username, email, password }
+        });
+        showAlert('alert-box', 'สมัครสมาชิกสำเร็จ! กำลังพาไปหน้าแดชบอร์ด...', false);
+        // สมัครเสร็จล็อกอินให้เลยแล้วเข้าหน้าแดชบอร์ด
+        await apiFetch('/api/auth/login', {
+          method: 'POST',
+          body: { username, password }
+        });
+        window.location.href = '/dashboard.html';
+      } catch (err) {
+        showAlert('alert-box', err.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>โปรไฟล์ - My Wallet</title>
+  <link rel="stylesheet" href="/css/output.css" />
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-indigo-600 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/dashboard.html" class="font-bold text-lg">💰 My Wallet</a>
+      <div class="flex items-center gap-1 text-sm">
+        <a href="/dashboard.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">แดชบอร์ด</a>
+        <a href="/transactions.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">รายการ</a>
+        <a href="/categories.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">หมวดหมู่</a>
+        <a href="/profile.html" class="px-3 py-2 rounded-lg font-semibold bg-indigo-700">โปรไฟล์</a>
+        <button onclick="logout()" class="ml-2 px-3 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-900">ออกจากระบบ</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <h1 class="text-2xl font-bold text-slate-800">โปรไฟล์และการตั้งค่า</h1>
+
+    <!-- ===== ข้อมูลโปรไฟล์ ===== -->
+    <section class="bg-white rounded-2xl shadow p-5">
+      <h2 class="font-bold text-slate-800 mb-1">ข้อมูลโปรไฟล์</h2>
+      <p class="text-xs text-slate-400 mb-4">สมาชิกตั้งแต่ <span id="member-since">-</span></p>
+      <div id="profile-alert" class="hidden rounded-lg px-4 py-3 text-sm mb-4"></div>
+      <form id="profile-form" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อผู้ใช้ (username)</label>
+          <input id="profile-username" type="text" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล</label>
+          <input id="profile-email" type="email" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-indigo-700">
+          บันทึกโปรไฟล์
+        </button>
+      </form>
+    </section>
+
+    <!-- ===== เปลี่ยนรหัสผ่าน ===== -->
+    <section class="bg-white rounded-2xl shadow p-5">
+      <h2 class="font-bold text-slate-800 mb-4">เปลี่ยนรหัสผ่าน</h2>
+      <div id="password-alert" class="hidden rounded-lg px-4 py-3 text-sm mb-4"></div>
+      <form id="password-form" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่านปัจจุบัน</label>
+          <input id="pwd-current" type="password" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่านใหม่</label>
+          <input id="pwd-new" type="password" required minlength="6"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ยืนยันรหัสผ่านใหม่</label>
+          <input id="pwd-confirm" type="password" required minlength="6"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-indigo-700">
+          เปลี่ยนรหัสผ่าน
+        </button>
+      </form>
+    </section>
+
+    <!-- ===== บัญชีเงินเก็บ ===== -->
+    <section class="bg-white rounded-2xl shadow p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold text-slate-800">บัญชีเงินเก็บ (Accounts)</h2>
+        <button onclick="openAccModal()"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold text-xs hover:bg-indigo-700">+ เพิ่มบัญชี</button>
+      </div>
+      <div id="account-list" class="space-y-2 mb-4">
+        <p class="text-slate-400 text-sm text-center py-4">กำลังโหลด...</p>
+      </div>
+      <div class="border-t border-slate-100 pt-3 text-right">
+        <span class="text-sm text-slate-500">ยอดรวมทุกบัญชี: </span>
+        <span id="total-balance" class="font-bold text-slate-800">0.00 บาท</span>
+      </div>
+    </section>
+
+    <!-- ===== ออกจากระบบ ===== -->
+    <section class="bg-white rounded-2xl shadow p-5">
+      <h2 class="font-bold text-slate-800 mb-2">ออกจากระบบ</h2>
+      <p class="text-sm text-slate-500 mb-3">กดปุ่มด้านล่างเพื่อออกจากระบบอย่างปลอดภัย</p>
+      <button onclick="logout()"
+        class="bg-rose-600 text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-rose-700">
+        ออกจากระบบ
+      </button>
+    </section>
+  </main>
+
+  <!-- Modal เพิ่ม/แก้ไขบัญชี -->
+  <div id="acc-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="acc-modal-title" class="font-bold text-lg text-slate-800">เพิ่มบัญชีเงินเก็บ</h3>
+        <button onclick="closeModal('acc-modal')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+      </div>
+      <div id="acc-alert" class="hidden rounded-lg px-4 py-3 text-sm mb-4"></div>
+      <form id="acc-form" class="space-y-3">
+        <input type="hidden" id="acc-id" />
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อบัญชี</label>
+          <input id="acc-name" type="text" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ยอดเงินเริ่มต้น (บาท)</label>
+          <input id="acc-balance" type="number" step="0.01" min="0" value="0"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700">
+          บันทึก
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // ---------- โหลดโปรไฟล์ ----------
+    async function loadProfile() {
+      try {
+        const me = await apiFetch('/api/users/me');
+        document.getElementById('profile-username').value = me.username;
+        document.getElementById('profile-email').value = me.email;
+        document.getElementById('member-since').textContent = formatDateTime(me.created_at);
+        document.getElementById('nav-username').textContent = me.username;
+        document.getElementById('total-balance').textContent = formatMoney(me.total_balance) + ' บาท';
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ---------- บันทึกโปรไฟล์ ----------
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await apiFetch('/api/users/me', {
+          method: 'PUT',
+          body: {
+            username: document.getElementById('profile-username').value.trim(),
+            email: document.getElementById('profile-email').value.trim()
+          }
+        });
+        showAlert('profile-alert', 'บันทึกโปรไฟล์สำเร็จ', false);
+        loadProfile();
+      } catch (err) {
+        showAlert('profile-alert', err.message);
+      }
+    });
+
+    // ---------- เปลี่ยนรหัสผ่าน ----------
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newPwd = document.getElementById('pwd-new').value;
+      const confirm = document.getElementById('pwd-confirm').value;
+      if (newPwd !== confirm) {
+        showAlert('password-alert', 'รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน');
+        return;
+      }
+      try {
+        await apiFetch('/api/users/me/password', {
+          method: 'PUT',
+          body: {
+            current_password: document.getElementById('pwd-current').value,
+            new_password: newPwd
+          }
+        });
+        showAlert('password-alert', 'เปลี่ยนรหัสผ่านสำเร็จ', false);
+        document.getElementById('password-form').reset();
+      } catch (err) {
+        showAlert('password-alert', err.message);
+      }
+    });
+
+    // ---------- บัญชีเงินเก็บ ----------
+    let lastAccounts = []; // เก็บรายการบัญชีไว้ให้ปุ่มแก้ไขอ้างอิง
+
+    async function loadAccounts() {
+      try {
+        const accounts = await apiFetch('/api/users/accounts');
+        lastAccounts = accounts;
+        const list = document.getElementById('account-list');
+        let total = 0;
+
+        if (accounts.length === 0) {
+          list.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">ยังไม่มีบัญชีเงินเก็บ</p>';
+          return;
+        }
+
+        list.innerHTML = accounts.map(a => {
+          total += parseFloat(a.balance);
+          return `
+            <div class="flex items-center justify-between border border-slate-200 rounded-xl px-4 py-3">
+              <div>
+                <p class="font-medium text-slate-700">${a.account_name}</p>
+                <p class="text-xs text-slate-400">สร้างเมื่อ ${formatDateTime(a.created_at)}</p>
+              </div>
+              <div class="text-right whitespace-nowrap">
+                <p class="font-bold ${parseFloat(a.balance) < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatMoney(a.balance)} บาท</p>
+                <button onclick="openEditAcc(${a.account_id})"
+                  class="text-indigo-600 hover:underline text-xs font-semibold">แก้ไข</button>
+                <span class="text-slate-300 mx-1">|</span>
+                <button onclick="deleteAcc(${a.account_id}, '${a.account_name.replace(/'/g, "\\'")}')"
+                  class="text-rose-600 hover:underline text-xs font-semibold">ลบ</button>
+              </div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('total-balance').textContent = formatMoney(total) + ' บาท';
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // เปิด modal เพิ่มบัญชี
+    function openAccModal() {
+      document.getElementById('acc-modal-title').textContent = 'เพิ่มบัญชีเงินเก็บ';
+      document.getElementById('acc-form').reset();
+      document.getElementById('acc-id').value = '';
+      document.getElementById('acc-balance').value = '0';
+      document.getElementById('acc-alert').classList.add('hidden');
+      openModal('acc-modal');
+    }
+
+    // เปิด modal แก้บัญชี (หาข้อมูลจาก cache แล้วเติมฟอร์ม)
+    function openEditAcc(id) {
+      const a = lastAccounts.find(x => x.account_id === id);
+      if (!a) return;
+      document.getElementById('acc-modal-title').textContent = 'แก้ไขบัญชีเงินเก็บ';
+      document.getElementById('acc-id').value = a.account_id;
+      document.getElementById('acc-name').value = a.account_name;
+      document.getElementById('acc-balance').value = parseFloat(a.balance);
+      document.getElementById('acc-alert').classList.add('hidden');
+      openModal('acc-modal');
+    }
+
+    // ส่งฟอร์มบัญชี (เพิ่มหรือแก้)
+    document.getElementById('acc-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('acc-id').value;
+      const payload = {
+        account_name: document.getElementById('acc-name').value.trim(),
+        balance: document.getElementById('acc-balance').value
+      };
+      try {
+        if (id) {
+          await apiFetch('/api/users/accounts/' + id, { method: 'PUT', body: payload });
+        } else {
+          await apiFetch('/api/users/accounts', { method: 'POST', body: payload });
+        }
+        closeModal('acc-modal');
+        loadAccounts();
+      } catch (err) {
+        showAlert('acc-alert', err.message);
+      }
+    });
+
+    // ลบบัญชี
+    async function deleteAcc(id, name) {
+      if (!confirm(`ยืนยันการลบบัญชี "${name}"? รายการเงินที่ผูกกับบัญชีนี้จะถูกลบด้วย`)) return;
+      try {
+        await apiFetch('/api/users/accounts/' + id, { method: 'DELETE' });
+        loadAccounts();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // เริ่มต้น
+    (async () => {
+      await requireLogin();
+      loadProfile();
+      loadAccounts();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>หมวดหมู่ - My Wallet</title>
+  <link rel="stylesheet" href="/css/output.css" />
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-indigo-600 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/dashboard.html" class="font-bold text-lg">💰 My Wallet</a>
+      <div class="flex items-center gap-1 text-sm">
+        <a href="/dashboard.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">แดชบอร์ด</a>
+        <a href="/transactions.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">รายการ</a>
+        <a href="/categories.html" class="px-3 py-2 rounded-lg font-semibold bg-indigo-700">หมวดหมู่</a>
+        <a href="/profile.html" class="px-3 py-2 rounded-lg hover:bg-indigo-700">โปรไฟล์</a>
+        <button onclick="logout()" class="ml-2 px-3 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-900">ออกจากระบบ</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold text-slate-800 mb-4">จัดการหมวดหมู่</h1>
+
+    <!-- ฟอร์มเพิ่มหมวดหมู่ -->
+    <div class="bg-white rounded-2xl shadow p-5 mb-6">
+      <h2 class="font-bold text-slate-800 mb-3">เพิ่มหมวดหมู่ใหม่</h2>
+      <div id="cat-alert" class="hidden rounded-lg px-4 py-3 text-sm mb-3"></div>
+      <form id="cat-form" class="flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-48">
+          <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อหมวดหมู่</label>
+          <input id="cat-name" type="text" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">ประเภท</label>
+          <select id="cat-type" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+            <option value="expense">รายจ่าย</option>
+            <option value="income">รายรับ</option>
+          </select>
+        </div>
+        <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-indigo-700">
+          + เพิ่ม
+        </button>
+      </form>
+    </div>
+
+    <!-- แท็บรายรับ / รายจ่าย -->
+    <div class="flex gap-2 mb-4">
+      <button id="tab-expense" onclick="switchTab('expense')"
+        class="px-4 py-2 rounded-lg text-sm font-semibold bg-rose-100 text-rose-700">รายจ่าย</button>
+      <button id="tab-income" onclick="switchTab('income')"
+        class="px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-500">รายรับ</button>
+    </div>
+
+    <!-- รายการหมวดหมู่ -->
+    <div id="cat-list" class="space-y-2"></div>
+  </main>
+
+  <!-- Modal แก้ไขหมวดหมู่ -->
+  <div id="cat-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg text-slate-800">แก้ไขหมวดหมู่</h3>
+        <button onclick="closeModal('cat-modal')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+      </div>
+      <div id="cat-modal-alert" class="hidden rounded-lg px-4 py-3 text-sm mb-4"></div>
+      <form id="cat-edit-form" class="space-y-3">
+        <input type="hidden" id="cat-edit-id" />
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อหมวดหมู่</label>
+          <input id="cat-edit-name" type="text" required
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700">
+          บันทึก
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let currentTab = 'expense';
+    let allCategories = [];
+
+    // ---------- สลับแท็บ ----------
+    function switchTab(tab) {
+      currentTab = tab;
+      const activeCls = 'px-4 py-2 rounded-lg text-sm font-semibold';
+      document.getElementById('tab-expense').className = tab === 'expense'
+        ? activeCls + ' bg-rose-100 text-rose-700'
+        : activeCls + ' bg-white text-slate-500';
+      document.getElementById('tab-income').className = tab === 'income'
+        ? activeCls + ' bg-emerald-100 text-emerald-700'
+        : activeCls + ' bg-white text-slate-500';
+      renderList();
+    }
+
+    // ---------- โหลดหมวดหมู่ ----------
+    async function loadCategories() {
+      try {
+        allCategories = await apiFetch('/api/categories');
+        renderList();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ---------- แสดงรายการตามแท็บ ----------
+    function renderList() {
+      const list = document.getElementById('cat-list');
+      const items = allCategories.filter(c => c.type === currentTab);
+
+      if (items.length === 0) {
+        list.innerHTML = '<div class="bg-white rounded-xl shadow p-6 text-center text-slate-400">ไม่มีหมวดหมู่ในแท็บนี้</div>';
+        return;
+      }
+
+      list.innerHTML = items.map(c => {
+        // หมวดของระบบ (user_id = null) แก้/ลบไม่ได้
+        const isOwn = c.user_id !== null;
+        const badge = isOwn
+          ? '<span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">ของฉัน</span>'
+          : '<span class="text-xs bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full">ของระบบ</span>';
+        const actions = isOwn
+          ? `<button onclick="openEdit(${c.category_id}, '${c.category_name.replace(/'/g, "\\'")}')"
+               class="text-indigo-600 hover:underline text-xs font-semibold">แก้ไข</button>
+             <span class="text-slate-300 mx-1">|</span>
+             <button onclick="deleteCat(${c.category_id})"
+               class="text-rose-600 hover:underline text-xs font-semibold">ลบ</button>`
+          : '<span class="text-xs text-slate-300">ไม่สามารถแก้ไข/ลบได้</span>';
+
+        return `
+          <div class="bg-white rounded-xl shadow px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="${currentTab === 'income' ? 'text-emerald-500' : 'text-rose-500'}">${currentTab === 'income' ? '↑' : '↓'}</span>
+              <span class="font-medium text-slate-700">${c.category_name}</span>
+              ${badge}
+            </div>
+            <div class="whitespace-nowrap">${actions}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // ---------- เพิ่มหมวดหมู่ ----------
+    document.getElementById('cat-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await apiFetch('/api/categories', {
+          method: 'POST',
+          body: {
+            category_name: document.getElementById('cat-name').value.trim(),
+            type: document.getElementById('cat-type').value
+          }
+        });
+        document.getElementById('cat-name').value = '';
+        showAlert('cat-alert', 'เพิ่มหมวดหมู่สำเร็จ', false);
+        loadCategories();
+      } catch (err) {
+        showAlert('cat-alert', err.message);
+      }
+    });
+
+    // ---------- แก้ไขหมวดหมู่ ----------
+    function openEdit(id, name) {
+      document.getElementById('cat-edit-id').value = id;
+      document.getElementById('cat-edit-name').value = name;
+      document.getElementById('cat-modal-alert').classList.add('hidden');
+      openModal('cat-modal');
+    }
+
+    document.getElementById('cat-edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('cat-edit-id').value;
+      try {
+        await apiFetch('/api/categories/' + id, {
+          method: 'PUT',
+          body: { category_name: document.getElementById('cat-edit-name').value.trim() }
+        });
+        closeModal('cat-modal');
+        loadCategories();
+      } catch (err) {
+        showAlert('cat-modal-alert', err.message);
+      }
+    });
+
+    // ---------- ลบหมวดหมู่ ----------
+    async function deleteCat(id) {
+      if (!confirm('ยืนยันการลบหมวดหมู่นี้?')) return;
+      try {
+        await apiFetch('/api/categories/' + id, { method: 'DELETE' });
+        loadCategories();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // เริ่มต้น
+    requireLogin().then(loadCategories);
+  </script>
+</body>
+</html>
