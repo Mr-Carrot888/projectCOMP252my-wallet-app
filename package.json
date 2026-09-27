@@ -4,7 +4,9 @@
   "description": "สมาชิก<br>\r 1.นายภูริ มาภู 6712231035<br>\r 2.น.ส.กมลวรรณ แก้วเจิม 6712231001<br>\r 3.นายอรรนพ เพริดพริ้ง 6712231029<br>",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "npx @tailwindcss/cli -i ./public/css/input.css -o ./public/css/output.css --watch",
+    "build:css:once": "npx @tailwindcss/cli -i ./public/css/input.css -o ./public/css/output.css"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,11 @@
   },
   "homepage": "https://github.com/Mr-Carrot888/projectCOMP252my-wallet-app#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@tailwindcss/cli": "^4.3.3",
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.24.4",
+    "tailwindcss": "^4.3.3"
   }
 }
