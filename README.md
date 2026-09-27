@@ -82,9 +82,14 @@ npm install
 
 3. Build Tailwind CSS
 รันคำสั่ง Compile ไฟล์ CSS ของ Tailwind:
+```
+npm run build:css
+```
 
 4. เริ่มต้นใช้งานเซิร์ฟเวอร์
+```
 node app.js
+```
 
 สมาชิก<br>
 1.นายภูริ มาภู 6712231035<br>
